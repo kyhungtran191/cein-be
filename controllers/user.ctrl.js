@@ -56,13 +56,9 @@ const login = asyncHandler(async (req, res, next) => {
 })
 
 
-const logOut = () => {
-
-}
-
-const currentUser = () => {
-
-}
+const currentUser = asyncHandler((req, res, next) => {
+    res.status(STATUS.OK).json(req.user);
+})
 
 
 const forgotPassword = () => {
@@ -72,6 +68,15 @@ const forgotPassword = () => {
 const refreshToken = () => {
 
 }
+
+const logOut = asyncHandler(async (req, res, next) => {
+    const userUpdated = await User.findOneAndUpdate({ _id: req.user._id }, { refresh_token: undefined })
+    req.user = null;
+    res.status(STATUS.OK).json({
+        message: "Logout successfully!"
+    });
+})
+
 module.exports = {
     signUp, login, logOut, forgotPassword, refreshToken, currentUser
 }
