@@ -1,9 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/user.model")
 
-const signUp = () => {
-
-}
+const signUp = asyncHandler((req, res, next) => {
+    const { } = req.body
+})
 const login = () => {
 
 }
