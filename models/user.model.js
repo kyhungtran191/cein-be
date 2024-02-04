@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema({
         default: ROLES.USER,
         enum: { values: [ROLES.USER, ROLES.ADMIN], message: "Role vừa chọn không thuộc trong hệ thống" },
     },
+    cart: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Cart"
+    },
+    orders: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Order"
+    },
     address: String,
 }, {
     timestamps: true,

@@ -5,6 +5,7 @@ require("dotenv").config();
 const morgan = require("morgan")
 const route = require("./routes");
 const db = require("./config/db")
+const { errHandler, notFound } = require("./config/errorGlobalHandler")
 //??
 app.use(morgan("common"))
 //PORT
@@ -16,7 +17,8 @@ app.use(helmet());
 db();
 //route
 route(app);
-
+app.all("*", notFound)
+app.use(errHandler)
 //server start
 app.listen(PORT, () => {
     console.log("Server running at " + PORT);
