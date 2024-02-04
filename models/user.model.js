@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "Please provide your password"],
-        min: [6, "Password must be at least 6 characters"]
+        min: [6, "Password must be at least 6 characters"],
+        select: false
     },
     confirm_password: {
         type: String,
@@ -29,8 +30,12 @@ const userSchema = new mongoose.Schema({
             validator: function (value) {
                 return value === this.password
             },
-            message: 'Mật khẩu không khớp'
-        }
+            message: 'Confirm password not match'
+        },
+        select: false
+    },
+    refresh_token: {
+        type: String
     },
     role: {
         type: String,
@@ -54,6 +59,7 @@ const userSchema = new mongoose.Schema({
     toObject: {
         virtuals: true
     },
+    id: false
 })
 
 userSchema.pre("save", async function (next) {
@@ -66,8 +72,6 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods = {
     isMatch: async function (password) {
-        console.log(password)
-        console.log(this.password)
         return await bcrypt.compare(password, this.password)
     },
     resetTokenGenerate: function () {

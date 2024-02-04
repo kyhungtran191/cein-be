@@ -1,4 +1,4 @@
-export const STATUS = {
+const STATUS = {
     OK: 200,
     CONTINUE: 100,
     GATEWAY_TIMEOUT: 504,
@@ -14,3 +14,4 @@ export const STATUS = {
     NOT_FOUND: 404,
     NOT_ACCEPTABLE: 406
 }
+module.exports = STATUS
