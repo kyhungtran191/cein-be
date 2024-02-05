@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const ROLES = require("../config/role")
 const bcrypt = require('bcrypt');
+const crypto = require('crypto-js')
 const userSchema = new mongoose.Schema({
     fullName: {
         type: String,
@@ -50,6 +51,8 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "Order"
     },
+    passwordResetExpired: String,
+    passwordResetToken: String,
     address: String,
 }, {
     timestamps: true,
