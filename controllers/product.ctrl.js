@@ -1,6 +1,7 @@
 const Product = require("../models/product.model")
 const asyncHandler = require("express-async-handler")
 const handleFilterImages = require("../utils/filterProductFiled")
+
 const addProduct = asyncHandler(async (req, res, next) => {
     const { name, description, category, vars, price } = req.body;
     console.log(name, description, category, vars)

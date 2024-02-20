@@ -57,6 +57,10 @@ const productSchema = new Schema({
     },
     vars: [
         {
+            var_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                default: mongoose.Types.ObjectId
+            },
             color: String,
             hex: String,
             sizes: [{
@@ -81,6 +85,7 @@ productSchema.pre("save", function (next) {
     this.slug = slugify(this.name, { lower: true, trim: true })
     next();
 })
+
 
 const Product = mongoose.model("Product", productSchema);
 module.exports = Product
