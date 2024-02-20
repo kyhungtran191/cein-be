@@ -9,7 +9,10 @@ const productSchema = new Schema({
         unique: true,
         trim: true
     },
-    featured_image: String,
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
     images: [{ type: String }],
     description: {
         type: String,
@@ -18,7 +21,7 @@ const productSchema = new Schema({
     price: {
         type: Number,
         required: [true, 'Please provide product price'],
-        max: [100000000, 'Product max price can be 1000000000'],
+        max: [1000000000, 'Product max price can be 1000000000'],
     },
     view: {
         type: Number,
@@ -52,7 +55,7 @@ const productSchema = new Schema({
         ref: 'Category',
         required: [true, 'Please provide category id']
     },
-    skus: [
+    vars: [
         {
             color: String,
             hex: String,
@@ -69,7 +72,8 @@ const productSchema = new Schema({
     },
     toObject: {
         virtuals: true
-    }
+    },
+    id: false
 });
 
 
@@ -78,4 +82,5 @@ productSchema.pre("save", function (next) {
     next();
 })
 
-module.exports = productSchema
+const Product = mongoose.model("Product", productSchema);
+module.exports = Product
