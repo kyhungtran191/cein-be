@@ -12,7 +12,7 @@ const categorySchema = new Schema({
     slug: String,
 })
 
-categorySchema.pre("post", function (next) {
+categorySchema.pre("save", function (next) {
     this.slug = slugify(this.name, { lower: true, trim: true })
     next();
 })

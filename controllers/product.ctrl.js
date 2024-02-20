@@ -1,7 +1,8 @@
 const Product = require("../models/product.model")
 const asyncHandler = require("express-async-handler")
 const handleFilterImages = require("../utils/filterProductFiled")
-
+const { ORDER, SORT_BY } = require("../constants/product")
+const Category = require("../models/category.model")
 const addProduct = asyncHandler(async (req, res, next) => {
     const { name, description, category, vars, price } = req.body;
     console.log(name, description, category, vars)
@@ -40,10 +41,77 @@ const getDetailProduct = asyncHandler(async (req, res, next) => {
 })
 
 const getAllProduct = asyncHandler(async (req, res, next) => {
-    const data = await Product.find();
+    let {
+        page = 1,
+        limit = 30,
+        category,
+        sort_by,
+        order,
+        rating_filter,
+        size,
+        price_max,
+        price_min,
+        colors,
+        name,
+    } = req.query;
+    page = Number(page)
+    limit = Number(limit)
+    let condition = {}
+    console.log(category)
+    if (category) {
+        // Chưa fix dc
+    }
+    //Còn colors
+    //còn sizes
+    if (rating_filter) {
+        condition.rating = { $gte: rating_filter }
+    }
+    if (price_max) {
+        condition.price = {
+            $lte: price_max,
+        }
+    }
+    if (price_min) {
+        condition.price = condition.price
+            ? { ...condition.price, $gte: price_min }
+            : { $gte: price_min }
+    }
+    if (!ORDER.includes(order)) {
+        order = ORDER[0]
+    }
+    if (!SORT_BY.includes(sort_by)) {
+        sort_by = SORT_BY[0]
+    }
+    if (name) {
+        condition.name = {
+            $regex: name,
+            $options: 'i',
+        }
+    }
+    let [products, totalProducts] =
+        await Promise.all([
+            Product.find(condition)
+                .populate({
+                    path: 'category',
+                })
+                .sort({ [sort_by]: order === 'desc' ? -1 : 1 })
+                .skip(page * limit - limit)
+                .limit(limit)
+                .select({ __v: 0, description: 0 })
+                .lean(),
+            Product.find(condition).countDocuments().lean(),
+        ])
+    const page_size = Math.ceil(totalProducts / limit) || 1
     return res.status(200).json({
         message: "Get all products successfully",
-        data
+        data: {
+            products,
+            pagination: {
+                page,
+                limit,
+                page_size,
+            },
+        },
     })
 })
 
