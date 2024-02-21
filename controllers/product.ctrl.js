@@ -3,6 +3,8 @@ const asyncHandler = require("express-async-handler")
 const handleFilterImages = require("../utils/filterProductFiled")
 const { ORDER, SORT_BY } = require("../constants/product")
 const Category = require("../models/category.model")
+const mongoose = require("mongoose")
+const { Types: { ObjectId } } = require('mongoose');
 const addProduct = asyncHandler(async (req, res, next) => {
     const { name, description, category, vars, price } = req.body;
     console.log(name, description, category, vars)
@@ -18,8 +20,9 @@ const addProduct = asyncHandler(async (req, res, next) => {
 });
 
 const updateProduct = asyncHandler(async (req, res, next) => {
-    const { name, description, category, price, isFeatured } = req.body
-    const updatedProduct = await Product.findByIdAndUpdate(pid, { name, description, category, price, isFeatured }, { new: true, runValidators: true })
+    const { name, description, category, price, isFeatured, vars } = req.body
+    const { id } = req.params
+    const updatedProduct = await Product.findByIdAndUpdate(id, { name, description, category, price, isFeatured, vars }, { new: true, runValidators: true })
     return res.status(200).json({
         message: "Update successfully!",
         data: updatedProduct
@@ -51,15 +54,18 @@ const getAllProduct = asyncHandler(async (req, res, next) => {
         size,
         price_max,
         price_min,
-        colors,
+        color,
         name,
     } = req.query;
     page = Number(page)
     limit = Number(limit)
     let condition = {}
-    console.log(category)
     if (category) {
         // Chưa fix dc
+        let categorieSlug = category.split(',');
+        let categoriesList = await Category.find({ slug: { $in: categorieSlug } })
+        let catIds = categoriesList.map((item) => item._id.toString())
+        condition.category = { $in: catIds }
     }
     //Còn colors
     //còn sizes
@@ -71,6 +77,33 @@ const getAllProduct = asyncHandler(async (req, res, next) => {
             $lte: price_max,
         }
     }
+    if (size && !color) {
+        condition.vars = {
+            $elemMatch: {
+                'sizes': {
+                    $elemMatch: {
+                        'name': size
+                    }
+                }
+            }
+        }
+    }
+    if (color && !size) {
+        condition.vars = { $elemMatch: { color: color } }
+    }
+    if (color && size) {
+        condition.vars = {
+            $elemMatch: {
+                'color': color,
+                'sizes': {
+                    $elemMatch: {
+                        'name': size
+                    }
+                }
+            }
+        }
+    }
+
     if (price_min) {
         condition.price = condition.price
             ? { ...condition.price, $gte: price_min }
@@ -101,15 +134,14 @@ const getAllProduct = asyncHandler(async (req, res, next) => {
                 .lean(),
             Product.find(condition).countDocuments().lean(),
         ])
-    const page_size = Math.ceil(totalProducts / limit) || 1
+    // const page_size = Math.ceil(totalProducts / limit) || 1
     return res.status(200).json({
         message: "Get all products successfully",
         data: {
             products,
             pagination: {
                 page,
-                limit,
-                page_size,
+                total: totalProducts
             },
         },
     })

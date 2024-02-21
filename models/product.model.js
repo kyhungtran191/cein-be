@@ -51,16 +51,12 @@ const productSchema = new Schema({
         default: 0
     },
     category: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: 'Category',
         required: [true, 'Please provide category id']
     },
     vars: [
         {
-            var_id: {
-                type: mongoose.Schema.Types.ObjectId,
-                default: mongoose.Types.ObjectId
-            },
             color: String,
             hex: String,
             sizes: [{
