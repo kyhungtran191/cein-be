@@ -61,14 +61,11 @@ const getAllProduct = asyncHandler(async (req, res, next) => {
     limit = Number(limit)
     let condition = {}
     if (category) {
-        // Chưa fix dc
         let categorieSlug = category.split(',');
         let categoriesList = await Category.find({ slug: { $in: categorieSlug } })
         let catIds = categoriesList.map((item) => item._id.toString())
         condition.category = { $in: catIds }
     }
-    //Còn colors
-    //còn sizes
     if (rating_filter) {
         condition.rating = { $gte: rating_filter }
     }
